@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-catalog
+  template:
+    metadata:
+      labels:
+        app: book-catalog
+    spec:
+      containers:
+      - name: book-catalog
+        image: sit722task82p.azurecr.io/book-catalog:latest
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "8081"
+        - name: DATABASE_URL
+          value: "postgresql://task82p_user:T6oVge4XQwNh662KeScfvFD58zZWBKJv@dpg-crietojv2p9s738h798g-a.oregon-postgres.render.com/task82p"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-catalog
+spec:
+  selector:
+    app: book-catalog
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers:
+      - name: inventory-management
+        image: sit722task82p.azurecr.io/inventory-management:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8082
+        env:
+        - name: PORT
+          value: "8082"
+        - name: DATABASE_URL
+          value: "postgresql://task82p_user:T6oVge4XQwNh662KeScfvFD58zZWBKJv@dpg-crietojv2p9s738h798g-a.oregon-postgres.render.com/task82p"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management
+spec:
+  selector:
+    app: inventory-management
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8082
